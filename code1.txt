@@ -1,0 +1,7 @@
+0 let X=5
+1 let Y=1
+2 print X*Y,"\n"
+3 if Y>10 then goto 6
+4 Y=Y+1
+5 goto 2
+6 exit
