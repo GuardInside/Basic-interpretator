@@ -1,0 +1,6 @@
+0 let X=2
+1 print "X = ", X,"\n"
+2 if X>1000 then goto 5
+3 X=X*2
+4 goto 1
+5 exit
