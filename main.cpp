@@ -12,7 +12,7 @@ namespace data
     map<char,int>   var;    //Здесь хранятся переменные
 }
 
-void deleteBeginingSpase(string* codeLine)
+void deleteBeginningSpace(string* codeLine)
 {
 
     size_t posBegin = 0;
@@ -23,7 +23,7 @@ void deleteBeginingSpase(string* codeLine)
 
 string nextWord(string* codeLine)
 {
-    deleteBeginingSpase(codeLine);
+    deleteBeginningSpace(codeLine);
     size_t posEnd = codeLine->find(' ');
     string theNextWord;
     if(posEnd != string::npos)
@@ -31,11 +31,11 @@ string nextWord(string* codeLine)
     else
         theNextWord = *codeLine;
     codeLine->erase(0, theNextWord.length());
-    deleteBeginingSpase(codeLine);
+    deleteBeginningSpace(codeLine);
     return theNextWord;
 }
 
-/* Вычисляет значение строкового численного выражения */
+/* Вычисляет значение выражения */
 double calc(const string& arg)
 {
     /* Идея
@@ -98,7 +98,7 @@ double calc(const string& arg)
     return result;
 }
 
-/* sign num op num */
+/* Вычисляет значение выражения с переменными */
 double calc_equation(string input)
 {
     /* Замена переменных */
@@ -129,6 +129,7 @@ double calc_equation(string input)
     return calc(input);
 }
 
+/* Проверяет истинность выражения expr */
 bool condition_test(string expr)
 {
     const static string op[] = {"==", "!=", "<", ">"};
@@ -200,6 +201,7 @@ int main()
     }
 
     /* Вспомогательные флаги и переменные */
+    /* Используются для обработки инструкций в блоках then and else */
     bool fSubCodeLine = false;
     string subCodeLine;
 
@@ -208,9 +210,9 @@ int main()
     {
         string codeLine = (fSubCodeLine) ? subCodeLine : codeSegment[i];
         fSubCodeLine = false;
-        codeLine.erase(0, codeLine.find(' '));
+        codeLine.erase(0, codeLine.find(' ')); //Удаляем номер строки
 
-        string cmd = nextWord(&codeLine);
+        string cmd = nextWord(&codeLine); //В cmd находится первое слово инструкции
         /* Введение новой переменной */
         if(cmd == "let")
         { /* let <var>=<expr> - присваивание */
@@ -243,7 +245,7 @@ int main()
             bool bfThenExist = posThen != string::npos;
             bool bfElseExist = posElse != string::npos;
 
-            subCodeLine     = to_string(i) + " "; /* Строка для кода из than или else ветви */
+            subCodeLine     = to_string(i) + " "; /* Строка для кода из than или else ветви, объявлена вне цикла */
 
             if(bfCondition && bfThenExist)
             {
@@ -266,21 +268,21 @@ int main()
             bool bEndOfPrint = false;
             while(!bEndOfPrint)
             {
-                size_t divPos = args.find(',');
+                size_t divPos = args.find(','); // Находим позицию запятой-разделителя аргументов
                 if(divPos == string::npos)
                 {
                     divPos = args.length();
                     bEndOfPrint = true;
                 }
 
-                size_t beginPos = 0;
+                size_t beginPos = 0; // Пропускаем пробелы для выделения начала аргумента функции print
                 while( isspace(args[beginPos]) )
                     beginPos++;
 
-                if(args[beginPos] == '\"')
+                if(args[beginPos] == '\"') // Имеем дело со строкой
                 {
-                    string msg = args.substr(beginPos+1, divPos - beginPos - 2);
-                    while(true)
+                    string msg = args.substr(beginPos+1, divPos - beginPos - 2); // Выделяем строку без ковычек
+                    while(true) // Меняем два последовательных символа \n на символ конца строки
                     {
                         size_t nPos = msg.find("\\n");
                         if(nPos == string::npos)
@@ -290,7 +292,7 @@ int main()
                     }
                     cout << msg;
                 }
-                else
+                else // Имеем дело с выражением
                     cout << calc_equation(args.substr(beginPos, divPos - beginPos));
 
                 if(!bEndOfPrint)
@@ -302,7 +304,7 @@ int main()
         }
         else if(cmd == "goto")
         {
-            int arg = stoi(nextWord(&codeLine));
+            int arg = stoi(nextWord(&codeLine)); //Получаем номер строки для перехода
             if( arg < 0 || arg >= static_cast<int>(limitLine) )
             {
                 cerr << "Error: " << "in goto invalid line number" << endl;
